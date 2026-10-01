@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from kanban_app.models import Board
+from kanban_app.models import Board, Comment, Task
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -14,6 +14,12 @@ class BoardSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
+            "member_count",
             "owner",
             "members",
         ]
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
