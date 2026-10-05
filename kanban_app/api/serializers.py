@@ -38,6 +38,9 @@ class BoardSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    assignee = UserSerializer(read_only=True)
+    reviewer = UserSerializer(read_only=True)
+    
     comments_count = serializers.IntegerField(
         source="comments.count",
         read_only=True,
