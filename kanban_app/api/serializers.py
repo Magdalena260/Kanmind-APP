@@ -1,6 +1,23 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
 
 from kanban_app.models import Board, Comment, Task
+
+
+class UserSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(
+        source="first_name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "fullname",
+        ]
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -21,16 +38,13 @@ class BoardSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-
     comments_count = serializers.IntegerField(
-    source="comments.count",
-    read_only=True,
-)
-    
+        source="comments.count",
+        read_only=True,
+    )
+
     class Meta:
         model = Task
-
-
         fields = [
             "id",
             "board",
@@ -44,11 +58,10 @@ class TaskSerializer(serializers.ModelSerializer):
             "comments_count",
         ]
 
-    class CommentSerializer(serializers.ModelSerializer):
-        class Meta:
-          model = Comment
 
-
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
         fields = [
             "id",
             "task",
