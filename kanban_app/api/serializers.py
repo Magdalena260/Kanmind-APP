@@ -21,6 +21,12 @@ class BoardSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+
+    comments_count = serializers.IntegerField(
+    source="comments.count",
+    read_only=True,
+)
+    
     class Meta:
         model = Task
 
@@ -35,4 +41,18 @@ class TaskSerializer(serializers.ModelSerializer):
             "assignee",
             "reviewer",
             "due_date",
+            "comments_count",
+        ]
+
+    class CommentSerializer(serializers.ModelSerializer):
+        class Meta:
+          model = Comment
+
+
+        fields = [
+            "id",
+            "task",
+            "author",
+            "content",
+            "created_at",
         ]
