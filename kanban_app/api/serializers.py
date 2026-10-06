@@ -40,22 +40,23 @@ class BoardSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     assignee = UserSerializer(read_only=True)
     reviewer = UserSerializer(read_only=True)
+
     assignee_id = serializers.PrimaryKeyRelatedField(
-    queryset=User.objects.all(),
-    source="assignee",
-    write_only=True,
-    required=False,
-    allow_null=True,
-)
+        queryset=User.objects.all(),
+        source="assignee",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
 
     reviewer_id = serializers.PrimaryKeyRelatedField(
-    queryset=User.objects.all(),
-    source="reviewer",
-    write_only=True,
-    required=False,
-    allow_null=True,
-)
-    
+        queryset=User.objects.all(),
+        source="reviewer",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
     comments_count = serializers.IntegerField(
         source="comments.count",
         read_only=True,
@@ -71,7 +72,9 @@ class TaskSerializer(serializers.ModelSerializer):
             "status",
             "priority",
             "assignee",
+            "assignee_id",
             "reviewer",
+            "reviewer_id",
             "due_date",
             "comments_count",
         ]
