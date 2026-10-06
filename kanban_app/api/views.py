@@ -1,6 +1,19 @@
+from django.db import models
+
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board
 
 from .serializers import BoardSerializer
+
+
+class BoardListView(generics.ListCreateAPIView):
+    serializer_class = BoardSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Board.objects.filter(
+            models.Q(owner=user) | models.Q(members=user)
+        ).distinct()
