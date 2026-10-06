@@ -77,7 +77,37 @@ class TaskSerializer(serializers.ModelSerializer):
             "reviewer_id",
             "due_date",
             "comments_count",
+            "created_by",
         ]
+        read_only_fields = [
+            "created_by",
+        ]
+
+    def validate(self, attrs):
+        board = attrs.get("board")
+
+        if self.instance and board and board != self.instance.board:
+            raise serializers.ValidationError(
+                {"board": "Board cannot be changed."}
+            )
+
+        if board is None and self.instance:
+            board = self.instance.board
+
+        assignee = attrs.get("assignee")
+        reviewer = attrs.get("reviewer")
+
+        if assignee and assignee not in board.members.all():
+            raise serializers.ValidationError(
+                {"assignee_id": "Assignee must be a board member."}
+            )
+
+        if reviewer and reviewer not in board.members.all():
+            raise serializers.ValidationError(
+                {"reviewer_id": "Reviewer must be a board member."}
+            )
+
+        return attrs
 
 
 class CommentSerializer(serializers.ModelSerializer):

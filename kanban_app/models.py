@@ -41,6 +41,13 @@ class Task(models.Model):
         related_name="tasks",
     )
 
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        related_name="created_tasks",
+        null=True,
+    )
+
     title = models.CharField(max_length=255)
     description = models.TextField()
 
@@ -91,6 +98,6 @@ class Comment(models.Model):
 
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-        
+
     def __str__(self):
         return self.content[:50]
