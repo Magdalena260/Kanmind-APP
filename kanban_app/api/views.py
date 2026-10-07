@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board
 
-from .serializers import BoardSerializer
+from .serializers import BoardSerializer, BoardSerializer
 
 
 class BoardListView(generics.ListCreateAPIView):
