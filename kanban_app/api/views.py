@@ -4,13 +4,14 @@ from django.db import models
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from kanban_app.models import Board, Task
+from kanban_app.models import Board, Comment, Task
 
 from .permissions import IsBoardOwner, IsTaskCreatorOrBoardOwner
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
     BoardUpdateSerializer,
+    CommentSerializer,
     TaskSerializer,
     UserSerializer,
 )
@@ -106,3 +107,23 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
             ]
 
         return [IsAuthenticated()]
+
+
+class CommentListCreateView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Comment.objects.filter(
+            task_id=self.kwargs["task_id"]
+        ).order_by("created_at")
+
+    def perform_create(self, serializer):
+        task = generics.get_object_or_404(
+            Task,
+            pk=self.kwargs["task_id"],
+        )
+        serializer.save(
+            task=task,
+            author=self.request.user,
+        )
