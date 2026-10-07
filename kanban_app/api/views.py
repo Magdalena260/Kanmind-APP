@@ -6,7 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board, Comment, Task
 
-from .permissions import IsBoardOwner, IsTaskCreatorOrBoardOwner
+from .permissions import (
+    IsBoardOwner,
+    IsCommentAuthor,
+    IsTaskCreatorOrBoardOwner,
+)
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
@@ -126,4 +130,17 @@ class CommentListCreateView(generics.ListCreateAPIView):
         serializer.save(
             task=task,
             author=self.request.user,
+        )
+
+
+class CommentDeleteView(generics.DestroyAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [
+        IsAuthenticated,
+        IsCommentAuthor,
+    ]
+
+    def get_queryset(self):
+        return Comment.objects.filter(
+            task_id=self.kwargs["task_id"]
         )
