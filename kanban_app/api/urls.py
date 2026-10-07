@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import BoardDetailView, BoardListView
+from .views import BoardDetailView, BoardListView, EmailCheckView
 
 
 urlpatterns = [
@@ -9,5 +9,10 @@ urlpatterns = [
         "boards/<int:pk>/",
         BoardDetailView.as_view(),
         name="board-detail",
+    ),
+    path(
+        "email-check/",
+        EmailCheckView.as_view(),
+        name="email-check",
     ),
 ]
