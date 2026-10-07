@@ -181,12 +181,20 @@ class BoardUpdateSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(
+        source="author.first_name",
+        read_only=True,
+    )
+
     class Meta:
         model = Comment
         fields = [
             "id",
-            "task",
+            "created_at",
             "author",
             "content",
+        ]
+        read_only_fields = [
             "created_at",
+            "author",
         ]
