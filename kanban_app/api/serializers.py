@@ -132,6 +132,23 @@ class TaskSerializer(serializers.ModelSerializer):
         return attrs
 
 
+
+    class BoardDetailSerializer(serializers.ModelSerializer):
+     members = UserSerializer(
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = Board
+        fields = [
+            "id",
+            "title",
+            "owner_id",
+            "members",
+        ]
+
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
