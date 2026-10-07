@@ -18,5 +18,5 @@ class BoardListView(generics.ListCreateAPIView):
             models.Q(owner=user) | models.Q(members=user)
         ).distinct()
 
-        def perform_create(self, serializer):
+    def perform_create(self, serializer):
          serializer.save(owner=self.request.user)
