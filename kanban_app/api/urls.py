@@ -4,6 +4,7 @@ from .views import (
     AssignedToMeView,
     BoardDetailView,
     BoardListView,
+    CommentDeleteView,
     CommentListCreateView,
     EmailCheckView,
     ReviewingView,
@@ -52,5 +53,10 @@ urlpatterns = [
         "tasks/<int:task_id>/comments/",
         CommentListCreateView.as_view(),
         name="comment-list-create",
+    ),
+    path(
+        "tasks/<int:task_id>/comments/<int:pk>/",
+        CommentDeleteView.as_view(),
+        name="comment-delete",
     ),
 ]
