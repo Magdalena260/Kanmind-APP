@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 from rest_framework import generics
@@ -10,6 +11,7 @@ from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
     BoardUpdateSerializer,
+    UserSerializer,
 )
 
 
@@ -47,3 +49,15 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Board.objects.filter(
             models.Q(owner=user) | models.Q(members=user)
         ).distinct()
+
+
+class EmailCheckView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        email = self.request.query_params.get("email")
+        return generics.get_object_or_404(
+            User,
+            email=email,
+        )
