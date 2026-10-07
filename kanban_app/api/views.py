@@ -4,9 +4,9 @@ from django.db import models
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from kanban_app.models import Board,  Task
+from kanban_app.models import Board, Task
 
-from .permissions import IsBoardOwner
+from .permissions import IsBoardOwner, IsTaskCreatorOrBoardOwner
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
@@ -14,6 +14,7 @@ from .serializers import (
     TaskSerializer,
     UserSerializer,
 )
+
 
 class BoardListView(generics.ListCreateAPIView):
     serializer_class = BoardSerializer
@@ -62,6 +63,7 @@ class EmailCheckView(generics.RetrieveAPIView):
             email=email,
         )
 
+
 class AssignedToMeView(generics.ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
@@ -70,6 +72,7 @@ class AssignedToMeView(generics.ListAPIView):
         return Task.objects.filter(
             assignee=self.request.user
         )
+
 
 class ReviewingView(generics.ListAPIView):
     serializer_class = TaskSerializer
@@ -80,6 +83,7 @@ class ReviewingView(generics.ListAPIView):
             reviewer=self.request.user
         )
 
+
 class TaskCreateView(generics.CreateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
@@ -89,7 +93,16 @@ class TaskCreateView(generics.CreateAPIView):
             created_by=self.request.user
         )
 
+
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
+
+    def get_permissions(self):
+        if self.request.method == "DELETE":
+            return [
+                IsAuthenticated(),
+                IsTaskCreatorOrBoardOwner(),
+            ]
+
+        return [IsAuthenticated()]
