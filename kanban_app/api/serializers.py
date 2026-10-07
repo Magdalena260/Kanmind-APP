@@ -132,9 +132,13 @@ class TaskSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class BoardDetailSerializer(serializers.ModelSerializer):
+    members = UserSerializer(
+        many=True,
+        read_only=True,
+    )
 
-    class BoardDetailSerializer(serializers.ModelSerializer):
-     members = UserSerializer(
+    tasks = TaskSerializer(
         many=True,
         read_only=True,
     )
@@ -146,7 +150,34 @@ class TaskSerializer(serializers.ModelSerializer):
             "title",
             "owner_id",
             "members",
+            "tasks",
         ]
+
+
+class BoardUpdateSerializer(serializers.ModelSerializer):
+    owner_data = UserSerializer(
+        source="owner",
+        read_only=True,
+    )
+
+    members_data = UserSerializer(
+        source="members",
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = Board
+        fields = [
+            "id",
+            "title",
+            "members",
+            "owner_data",
+            "members_data",
+        ]
+        extra_kwargs = {
+            "members": {"write_only": True},
+        }
 
 
 class CommentSerializer(serializers.ModelSerializer):
