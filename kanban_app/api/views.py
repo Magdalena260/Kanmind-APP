@@ -5,13 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board
 
+from .permissions import IsBoardOwner
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
     BoardUpdateSerializer,
 )
 
-from .permissions import IsBoardOwner
 
 class BoardListView(generics.ListCreateAPIView):
     serializer_class = BoardSerializer
@@ -29,6 +29,12 @@ class BoardListView(generics.ListCreateAPIView):
 
 class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == "DELETE":
+            return [IsAuthenticated(), IsBoardOwner()]
+
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":
