@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board
 
-from .serializers import BoardSerializer, BoardSerializer
+from .serializers import BoardDetailSerializer, BoardSerializer
 
 
 class BoardListView(generics.ListCreateAPIView):
@@ -23,7 +23,7 @@ class BoardListView(generics.ListCreateAPIView):
 
 
 class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = BoardSerializer
+    serializer_class = BoardDetailSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
