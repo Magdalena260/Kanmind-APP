@@ -19,8 +19,15 @@ class BoardListView(generics.ListCreateAPIView):
         ).distinct()
 
     def perform_create(self, serializer):
-         serializer.save(owner=self.request.user)
+        serializer.save(owner=self.request.user)
 
 
+class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = BoardSerializer
+    permission_classes = [IsAuthenticated]
 
-    
+    def get_queryset(self):
+        user = self.request.user
+        return Board.objects.filter(
+            models.Q(owner=user) | models.Q(members=user)
+        ).distinct()
