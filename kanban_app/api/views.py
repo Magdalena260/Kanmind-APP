@@ -4,16 +4,16 @@ from django.db import models
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from kanban_app.models import Board
+from kanban_app.models import Board,  Task
 
 from .permissions import IsBoardOwner
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
     BoardUpdateSerializer,
+    TaskSerializer,
     UserSerializer,
 )
-
 
 class BoardListView(generics.ListCreateAPIView):
     serializer_class = BoardSerializer
@@ -60,4 +60,13 @@ class EmailCheckView(generics.RetrieveAPIView):
         return generics.get_object_or_404(
             User,
             email=email,
+        )
+
+class AssignedToMeView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(
+            assignee=self.request.user
         )
