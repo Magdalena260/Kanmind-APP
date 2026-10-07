@@ -5,6 +5,9 @@ from .views import (
     BoardDetailView,
     BoardListView,
     EmailCheckView,
+    ReviewingView,
+    TaskCreateView,
+    TaskDetailView,
 )
 
 
@@ -28,5 +31,20 @@ urlpatterns = [
         "tasks/assigned-to-me/",
         AssignedToMeView.as_view(),
         name="tasks-assigned-to-me",
+    ),
+    path(
+        "tasks/reviewing/",
+        ReviewingView.as_view(),
+        name="tasks-reviewing",
+    ),
+    path(
+        "tasks/",
+        TaskCreateView.as_view(),
+        name="task-create",
+    ),
+    path(
+        "tasks/<int:pk>/",
+        TaskDetailView.as_view(),
+        name="task-detail",
     ),
 ]

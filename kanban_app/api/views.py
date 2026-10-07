@@ -70,3 +70,26 @@ class AssignedToMeView(generics.ListAPIView):
         return Task.objects.filter(
             assignee=self.request.user
         )
+
+class ReviewingView(generics.ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(
+            reviewer=self.request.user
+        )
+
+class TaskCreateView(generics.CreateAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(
+            created_by=self.request.user
+        )
+
+class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Task.objects.all()
