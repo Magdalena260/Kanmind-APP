@@ -11,6 +11,7 @@ from .serializers import (
     BoardUpdateSerializer,
 )
 
+from .permissions import IsBoardOwner
 
 class BoardListView(generics.ListCreateAPIView):
     serializer_class = BoardSerializer
