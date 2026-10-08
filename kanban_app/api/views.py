@@ -6,11 +6,16 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board, Comment, Task
 
+
 from .permissions import (
+    
+    IsBoardMember,
     IsBoardOwner,
     IsCommentAuthor,
     IsTaskCreatorOrBoardOwner,
 )
+
+
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
