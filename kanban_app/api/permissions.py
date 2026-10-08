@@ -1,3 +1,4 @@
+
 from rest_framework.permissions import BasePermission
 
 
@@ -17,3 +18,15 @@ class IsTaskCreatorOrBoardOwner(BasePermission):
 class IsCommentAuthor(BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user
+
+
+class IsBoardMember(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        board = getattr(obj, "board", obj)
+
+        return (
+            board.owner == request.user
+            or board.members.filter(
+                pk=request.user.pk
+            ).exists()
+        )
