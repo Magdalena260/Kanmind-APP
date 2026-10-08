@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board, Comment, Task
@@ -65,9 +66,15 @@ class EmailCheckView(generics.RetrieveAPIView):
 
     def get_object(self):
         email = self.request.query_params.get("email")
+
+        if not email or not email.strip():
+            raise ValidationError({
+                "email": "Email address is required."
+            })
+
         return generics.get_object_or_404(
             User,
-            email=email,
+            email=email.strip(),
         )
 
 
