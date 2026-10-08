@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -6,16 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.models import Board, Comment, Task
 
-
 from .permissions import (
-    
     IsBoardMember,
     IsBoardOwner,
     IsCommentAuthor,
     IsTaskCreatorOrBoardOwner,
 )
-
-
 from .serializers import (
     BoardDetailSerializer,
     BoardSerializer,
@@ -96,15 +93,13 @@ class ReviewingView(generics.ListAPIView):
 
 class TaskCreateView(generics.CreateAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsBoardMember]
 
     def perform_create(self, serializer):
         board = serializer.validated_data["board"]
         self.check_object_permissions(self.request, board)
         serializer.save(created_by=self.request.user)
 
-    def get_permissions(self):
-        return [IsAuthenticated(), IsBoardMember()]
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
@@ -117,25 +112,28 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
                 IsTaskCreatorOrBoardOwner(),
             ]
 
-        return [IsAuthenticated()]
+        return [IsAuthenticated(), IsBoardMember()]
 
 
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsBoardMember]
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            task_id=self.kwargs["task_id"]
-        ).order_by("created_at")
+        task = self.get_task()
+        return task.comments.all().order_by("created_at")
 
-    def perform_create(self, serializer):
+    def get_task(self):
         task = generics.get_object_or_404(
             Task,
             pk=self.kwargs["task_id"],
         )
+        self.check_object_permissions(self.request, task)
+        return task
+
+    def perform_create(self, serializer):
         serializer.save(
-            task=task,
+            task=self.get_task(),
             author=self.request.user,
         )
 
