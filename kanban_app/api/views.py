@@ -99,10 +99,12 @@ class TaskCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(
-            created_by=self.request.user
-        )
+        board = serializer.validated_data["board"]
+        self.check_object_permissions(self.request, board)
+        serializer.save(created_by=self.request.user)
 
+    def get_permissions(self):
+        return [IsAuthenticated(), IsBoardMember()]
 
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
