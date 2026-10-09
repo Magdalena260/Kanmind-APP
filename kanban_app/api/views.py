@@ -39,25 +39,24 @@ class BoardListView(generics.ListCreateAPIView):
 
 
 class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    queryset = Board.objects.all()
+    permission_classes = [IsAuthenticated, IsBoardMember]
 
     def get_permissions(self):
         if self.request.method == "DELETE":
-            return [IsAuthenticated(), IsBoardOwner()]
-
-        return [IsAuthenticated()]
+            return [
+                IsAuthenticated(),
+                IsBoardOwner(),
+            ]
+        return [
+            IsAuthenticated(),
+            IsBoardMember(),
+        ]
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":
             return BoardUpdateSerializer
-
         return BoardDetailSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        return Board.objects.filter(
-            models.Q(owner=user) | models.Q(members=user)
-        ).distinct()
 
 
 class EmailCheckView(generics.RetrieveAPIView):
@@ -118,8 +117,10 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
                 IsAuthenticated(),
                 IsTaskCreatorOrBoardOwner(),
             ]
-
-        return [IsAuthenticated(), IsBoardMember()]
+        return [
+            IsAuthenticated(),
+            IsBoardMember(),
+        ]
 
 
 class CommentListCreateView(generics.ListCreateAPIView):
