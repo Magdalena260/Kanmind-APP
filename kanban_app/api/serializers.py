@@ -22,16 +22,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BoardSerializer(serializers.ModelSerializer):
-    member_count = serializers.IntegerField(
-        source="members.count",
-        read_only=True,
-    )
-    ticket_count = serializers.IntegerField(
-        source="tasks.count",
-        read_only=True,
-    )
-    tasks_to_do_count = serializers.SerializerMethodField()
-    tasks_high_prio_count = serializers.SerializerMethodField()
+    member_count = serializers.IntegerField(read_only=True)
+    ticket_count = serializers.IntegerField(read_only=True)
+    tasks_to_do_count = serializers.IntegerField(read_only=True)
+    tasks_high_prio_count = serializers.IntegerField(read_only=True)
+
     owner_id = serializers.IntegerField(
         source="owner.id",
         read_only=True,
@@ -56,12 +51,6 @@ class BoardSerializer(serializers.ModelSerializer):
             "members",
         ]
 
-    def get_tasks_to_do_count(self, obj):
-        return obj.tasks.filter(status="to-do").count()
-
-    def get_tasks_high_prio_count(self, obj):
-        return obj.tasks.filter(priority="high").count()
-
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee = UserSerializer(read_only=True)
@@ -81,10 +70,7 @@ class TaskSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    comments_count = serializers.IntegerField(
-        source="comments.count",
-        read_only=True,
-    )
+    comments_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Task
@@ -105,9 +91,11 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         board = attrs.get("board")
+
         if self.instance:
             self.check_board_change(board)
             board = board or self.instance.board
+
         self.check_board_user(attrs, board, "assignee")
         self.check_board_user(attrs, board, "reviewer")
         return attrs
@@ -120,6 +108,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def check_board_user(self, attrs, board, field):
         user = attrs.get(field)
+
         if user and not board.members.filter(pk=user.pk).exists():
             raise serializers.ValidationError({
                 f"{field}_id": "User must be a board member."
