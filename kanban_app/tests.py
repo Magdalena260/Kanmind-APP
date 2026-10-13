@@ -158,3 +158,57 @@ class CommentApiTest(APITestCase):
             f"/api/tasks/{self.task.id}/comments/{self.comment.id}/"
         )
         self.assertEqual(response.status_code, 204)
+
+
+class AdditionalApiTests(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username="extraowner",
+            email="extra@example.com",
+        )
+        self.member = User.objects.create_user(
+            username="extramember",
+            email="member@example.com",
+        )
+        self.board = Board.objects.create(
+            title="Extra Board",
+            owner=self.owner,
+        )
+        self.board.members.add(self.member)
+
+    def test_owner_can_create_board(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(
+            "/api/boards/",
+            {"title": "New Board"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(
+            Board.objects.filter(title="New Board").exists()
+        )
+
+    def test_owner_can_update_board(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.patch(
+            f"/api/boards/{self.board.id}/",
+            {"title": "Updated Board"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.board.refresh_from_db()
+        self.assertEqual(self.board.title, "Updated Board")
+
+    def test_owner_can_delete_board(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.delete(
+            f"/api/boards/{self.board.id}/"
+        )
+        self.assertEqual(response.status_code, 204)
+
+    def test_email_check_success(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.get(
+            "/api/email-check/?email=member@example.com"
+        )
+        self.assertEqual(response.status_code, 200)
