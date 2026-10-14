@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.db.models import Count, Prefetch, Q
 
@@ -69,11 +68,7 @@ class BoardListView(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-
-        board = boards_with_counts().get(
-            pk=serializer.instance.pk
-        )
-
+        board = boards_with_counts().get(pk=serializer.instance.pk)
         return Response(
             self.get_serializer(board).data,
             status=status.HTTP_201_CREATED,
@@ -88,22 +83,13 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
             "owner",
         ).prefetch_related(
             "members",
-            Prefetch(
-                "tasks",
-                queryset=tasks_with_counts(),
-            ),
+            Prefetch("tasks", queryset=tasks_with_counts()),
         )
 
     def get_permissions(self):
         if self.request.method == "DELETE":
-            return [
-                IsAuthenticated(),
-                IsBoardOwner(),
-            ]
-        return [
-            IsAuthenticated(),
-            IsBoardMember(),
-        ]
+            return [IsAuthenticated(), IsBoardOwner()]
+        return [IsAuthenticated(), IsBoardMember()]
 
     def get_serializer_class(self):
         if self.request.method == "PATCH":
@@ -117,12 +103,10 @@ class EmailCheckView(generics.RetrieveAPIView):
 
     def get_object(self):
         email = self.request.query_params.get("email")
-
         if not email or not email.strip():
             raise ValidationError({
                 "email": "Email address is required."
             })
-
         return generics.get_object_or_404(
             User,
             email=email.strip(),
@@ -162,11 +146,7 @@ class TaskCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-
-        task = tasks_with_counts().get(
-            pk=serializer.instance.pk
-        )
-
+        task = tasks_with_counts().get(pk=serializer.instance.pk)
         return Response(
             self.get_serializer(task).data,
             status=status.HTTP_201_CREATED,
@@ -181,32 +161,22 @@ class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method == "DELETE":
-            return [
-                IsAuthenticated(),
-                IsTaskCreatorOrBoardOwner(),
-            ]
-        return [
-            IsAuthenticated(),
-            IsBoardMember(),
-        ]
+            return [IsAuthenticated(), IsTaskCreatorOrBoardOwner()]
+        return [IsAuthenticated(), IsBoardMember()]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
-
         serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=partial,
+            instance, data=request.data, partial=partial
         )
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        return self.updated_task_response(instance.pk)
 
-        task = tasks_with_counts().get(pk=instance.pk)
-
-        return Response(
-            self.get_serializer(task).data
-        )
+    def updated_task_response(self, task_id):
+        task = tasks_with_counts().get(pk=task_id)
+        return Response(self.get_serializer(task).data)
 
 
 class CommentListCreateView(generics.ListCreateAPIView):
