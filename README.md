@@ -3,7 +3,8 @@
 
 KanMind is a Kanban task management application built with Django and Django REST Framework.
 
-This project provides a REST API for managing users, boards, tasks, and comments. It was developed as part of the Developer Akademie Backend course.
+This project provides a REST API for managing users, boards, tasks, and comments. 
+It is developed as part of the Developer Akademie Backend course.
 
 ## Features
 
